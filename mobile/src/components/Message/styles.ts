@@ -50,6 +50,7 @@ export const ModalBox = styled.TouchableOpacity`
 export const Box = styled.View`
   align-items: center;
 
+  width: 100%;
   background: #fff;
   elevation: 5;
 

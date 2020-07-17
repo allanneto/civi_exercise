@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
-import { format } from 'date-fns';
-
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import FormatDate from '../../services/formatDate';
+
 import api from '../../services/api';
 import * as Styled from './styles';
 
@@ -11,6 +11,7 @@ interface Message {
   subject: string;
   detail: string;
   read: boolean;
+  parsed_date: string;
   created_at: string;
   updated_at: string;
 }
@@ -28,7 +29,12 @@ const Message: React.FC = ({ setUpdate, update }: HighOrderComponentDTO) => {
   const loadMessages = async () => {
     const response = await api.get('/messages');
 
-    setMessages(response.data);
+    const messagesArray = response.data.map(message => ({
+      ...message,
+      parsed_date: FormatDate(message.created_at),
+    }));
+
+    setMessages(messagesArray);
     setUpdate(false);
   };
 
@@ -51,7 +57,13 @@ const Message: React.FC = ({ setUpdate, update }: HighOrderComponentDTO) => {
       message_id: data.id,
     });
 
-    loadMessages();
+    const updateMessages = messages;
+
+    const findIndex = updateMessages.findIndex(item => item.id === data.id);
+
+    updateMessages[findIndex].read = true;
+
+    setMessages(updateMessages);
     setMessageInfo(data);
     toggleModalVisible();
   };
@@ -68,13 +80,13 @@ const Message: React.FC = ({ setUpdate, update }: HighOrderComponentDTO) => {
           <Styled.Box>
             <Styled.Title>{messageInfo.subject}</Styled.Title>
             <Styled.Content>{messageInfo.detail}</Styled.Content>
-            <Styled.Date>{messageInfo.created_at}</Styled.Date>
+            <Styled.Date>{messageInfo.parsed_date}</Styled.Date>
           </Styled.Box>
         </Styled.ModalBox>
       </Styled.TestModal>
       {messages.length === 0 ? (
         <Styled.Message>
-          <Styled.Subject>Sem mensagens cadastradas</Styled.Subject>
+          <Styled.Subject>No messages rocorded</Styled.Subject>
         </Styled.Message>
       ) : (
         messages.map(message => (
@@ -84,7 +96,7 @@ const Message: React.FC = ({ setUpdate, update }: HighOrderComponentDTO) => {
           >
             <Styled.Subject>{message.subject}</Styled.Subject>
             <Styled.Info>
-              <Styled.Date>{message.created_at}</Styled.Date>
+              <Styled.Date>{message.parsed_date}</Styled.Date>
               <Icon
                 size={20}
                 name="message-bulleted"
