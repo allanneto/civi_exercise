@@ -1,7 +1,6 @@
 import { uuid } from 'uuidv4';
 
 import Message from '../../models/Message';
-import AppError from '../../errors/AppError';
 
 import IMessagesRepository from '../IMessageRepository';
 import ICreateMessageDTO from '../../dtos/ICreateMessageDTO';
@@ -38,6 +37,10 @@ class MessageRepository implements IMessagesRepository {
     this.messages[findMessage].read = true;
 
     return this.messages[findMessage];
+  }
+
+  public async index(): Promise<Message[]> {
+    return this.messages;
   }
 }
 
